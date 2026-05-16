@@ -1,59 +1,149 @@
-🧹 SmartClean Pipeline (Desktop Edition)
+🧹 SmartClean Pipeline
 
-SmartClean Pipeline is an intelligent, high-performance data ingestion and standardization engine. Packaged as a standalone Windows application, it allows you to process, clean, and rescue massive datasets entirely locally.
+🌐 Live Application: Access SmartClean Pipeline Here
 
-Because the pipeline runs directly on your machine without relying on external cloud servers, it guarantees zero network latency and 100% data privacy for sensitive information.
+(Note: Replace the link above with your live domain once hosted)
+
+SmartClean Pipeline is an intelligent, lightweight, and professional-grade data ingestion and standardization engine. Built for robustness and scale, it ingests messy datasets via file uploads or REST APIs, cleans them using optimized mappings, and securely handles malformed records using enterprise standard Quarantine (Dead Letter Queue) patterns.
 
 🚀 Key Features
 
-1. Enterprise Data Integrity
+1. Robust Data Ingestion
 
-Quarantine Pattern (Dead Letter Queue): Structurally malformed rows (such as CSV rows with unescaped commas that shift columns) are automatically intercepted and isolated to prevent silent data corruption.
+Multi-format Support: Ingest .csv and .xlsx files simultaneously.
 
-Intelligent Auto-Recovery: The engine can automatically stitch fractured columns back together in-memory, rescuing broken data and seamlessly appending it to your clean dataset.
+REST API Integration: Fetch nested JSON payloads directly from API endpoints. Deeply nested structures are automatically flattened (json_normalize).
 
-2. High-Performance Processing
+Cryptographic Deduplication: Hashes incoming files (MD5) to prevent redundant processing of identical files.
 
-Smart Header Detection: Dynamically detects if a dataset has headers without reading the entire file, saving processing time.
+Smart Header Detection: Uses O(1) csv.Sniffer byte-peeking to dynamically detect if a dataset has headers without sacrificing read times.
 
-Rapid Mapping Optimization: Capable of processing massive datasets (1M+ rows) in seconds by utilizing unique value mapping rather than row-by-row iteration.
+2. Enterprise Data Integrity (The Quarantine Engine)
 
-Cryptographic Deduplication: Hashes incoming files to prevent redundant processing if you accidentally upload identical files.
+Strict Fast-Path Parsing: Standard files are processed via a highly optimized C-engine.
 
-3. Comprehensive Cleaning Engine
+Dead Letter Queue (DLQ): Structurally malformed rows (e.g., unescaped commas shifting columns) are intercepted and isolated from the main pipeline.
 
-Regex Standardizations: Validates email addresses and extracts/normalizes 10-digit phone numbers.
+Intelligent Auto-Recovery: Optionally auto-stitches fractured columns back together in-memory, rescuing broken data and seamlessly appending it to the clean dataset.
 
-Fuzzy Matching: Detects and unifies typo-ridden location or city names automatically.
+3. Optimized Cleaning Engine
 
-Smart Imputation: Handles missing data (NaN or nulls) contextually to ensure complete data profiles.
+O(1) Mapping Optimization: Capable of processing 1M+ rows in seconds by utilizing Unique Value Mapping rather than row-by-row iteration.
 
-💻 How to Use
+Regex Standardizations: Validates emails and extracts/normalizes 10-digit phone numbers.
 
-Everything you need is pre-built into the application. There is no need to install Python, configure environments, or download external libraries.
+Text & Date Formatting: Enforces proper title-casing, strips whitespaces, and standardizes disparate date formats to YYYY-MM-DD.
 
-Step 1: Right-click the downloaded SmartClean.zip file and select Extract All... to unzip the folder. (Note: The application will not run correctly if you try to open it while it is still zipped).
+Fuzzy Matching: Implements rapidfuzz to detect and unify typo-ridden location/city names (e.g., "Delih" → "Delhi").
 
-Step 2: Open the extracted folder and double-click SmartClean.exe.
+Smart Imputation: Handles NaN and nulls contextually (median for numerics, "Unknown" for strings).
 
-Step 3: Wait a few moments. A local web server will securely spin up in the background, and the SmartClean dashboard will automatically open in your default web browser.
+4. Interactive & Persistent UI
 
-Step 4: Upload your .csv or .xlsx files, select your cleaning configurations on the left sidebar, and click Execute Pipeline.
+Built with Streamlit for a minimal, professional dashboard experience.
+
+Session State Anchoring: Keeps heavy data artifacts anchored in memory so user interactions and downloads do not trigger costly script reruns.
+
+Preview Throttling: Caps DataFrame rendering at 100 rows to prevent browser memory crashes on massive datasets.
+
+🛠️ Technologies Used
+
+Core Engine: Python, Pandas, NumPy
+
+Frontend UI: Streamlit
+
+Fuzzy Logic: Rapidfuzz
+
+Data Retrieval: Requests
+
+Export Handling: OpenPyXL
+
+📂 Project Structure
+
+smartclean/
+│
+├── app.py                  # Main Streamlit application and core pipeline
+├── requirements.txt        # Project dependencies
+├── README.md               # Documentation
+│
+├── input/                  # Auto-generated: Directory for local raw data (optional)
+└── output/                 # Auto-generated: Directory for pipeline exports
+
+
+
+💻 Installation & Setup (Local)
+
+It is highly recommended to run this project inside an isolated virtual environment.
+
+1. Clone the repository
+
+git clone [https://github.com/tisabhinavagarwal/smartcleaner]
+cd smartclean-pipeline
+
+
+
+2. Create and activate a Virtual Environment
+
+Windows:
+
+python -m venv venv
+venv\Scripts\activate
+
+
+
+macOS / Linux:
+
+python3 -m venv venv
+source venv/bin/activate
+
+
+
+3. Install Dependencies
+
+pip install -r requirements.txt
+
+
+
+🏃‍♂️ How to Run Locally
+
+Launch the pipeline using the Streamlit CLI:
+
+streamlit run app.py
+
+
+
+The application will automatically open in your default web browser at http://localhost:8501.
+
+☁️ Cloud Deployment (Streamlit Community Cloud)
+
+This application is fully compatible with immediate, free deployment via Streamlit Community Cloud:
+
+Push this complete repository to your GitHub account.
+
+Sign in to Streamlit Community Cloud.
+
+Click New App and link your GitHub repository.
+
+Set the Main file path to app.py and click Deploy.
+
+Your application will be live in minutes and accessible via a public web domain!
 
 📊 Export Artifacts
 
-Upon successful execution, the pipeline generates comprehensive export artifacts directly to your browser for download:
+Upon successful execution, the pipeline generates:
 
-clean_output.csv: The finalized, standardized dataset ready for downstream analysis.
+clean_output.csv: The finalized, standardized dataset.
 
-cleaning_report.xlsx: A multi-sheet Excel file containing:
+cleaning_report.xlsx: A multi-sheet Excel file containing the clean data, an execution metrics report, and a dedicated Quarantined_Rows sheet (if malformed data was detected).
 
-The fully cleaned data.
+quarantined_rows.csv (Conditional): A direct CSV export of structurally broken rows for manual intervention.
 
-An execution metrics report detailing exactly how many duplicates were removed, missing values filled, and broken rows rescued.
+🔮 Future Improvements
 
-A dedicated Quarantined_Rows sheet (if malformed data was detected and skipped).
+Database Connectors: Add direct ingestion and write-back functionality for PostgreSQL and Snowflake.
 
-quarantined_rows.csv: A direct CSV export of structurally broken rows, available if you choose to manually handle skipped data.
+Custom Regex Rules: Allow users to define custom regex patterns for specific organizational ID formats via the UI.
 
-Built for secure, local data engineering.
+Data Profiling PDF: Generate a downloadable PDF report with data distribution histograms before and after cleaning.
+
+Docker Containerization: Package the app via a Dockerfile for single-command enterprise deployments.
